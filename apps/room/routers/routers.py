@@ -1,47 +1,44 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response
 
-from apps.room.persistence.persistence import RoomSqlModelPersistence, SeatSqlModelPersistence
+from apps.room.interfaces.interfaces import IRoomService, ISeatService
 from apps.room.routers.schemas import RoomResponseSchema, RoomSchema, SeatSchema
-from apps.room.services.service import RoomService, SeatService
+from apps.room.services.service import get_room_service, get_seat_service
 
 
 router = APIRouter(prefix="/room")
 
-roomPersistence = RoomSqlModelPersistence()
-roomService = RoomService(roomPersistence)
-
 @router.get("", tags=["room"], response_model=list[RoomResponseSchema])
-async def get_all_rooms():
+async def get_all_rooms(roomService: IRoomService = Depends(get_room_service)):
     rooms = roomService.getAll()
     if not rooms is None:
         return rooms
     raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Error getting rooms")
 
 @router.get("/{room_id}", tags=["room"], response_model=RoomResponseSchema)
-async def get_room(room_id: int):
+async def get_room(room_id: int, roomService: IRoomService = Depends(get_room_service)):
     room = roomService.get(room_id)
     if room:
         return room
     raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Room not found")
 
 @router.post("", tags=["room"])
-async def create_room(room: RoomSchema):
+async def create_room(room: RoomSchema, roomService: IRoomService = Depends(get_room_service)):
     created = roomService.create(room.name, room.movie)
     if created:
         return Response(status_code=HTTPStatus.CREATED)
     raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Error creating room")
 
 @router.patch("/{room_id}", tags=["room"])
-async def update_room(room_id: int, room: RoomSchema):
+async def update_room(room_id: int, room: RoomSchema, roomService: IRoomService = Depends(get_room_service)):
     updated = roomService.update(room_id, room.name, room.movie)
     if updated:
         return Response(status_code=HTTPStatus.OK)
     raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Error updating room")
 
 @router.delete("/{room_id}", tags=["room"])
-async def delete_room(room_id: int):
+async def delete_room(room_id: int, roomService: IRoomService = Depends(get_room_service)):
     deleted = roomService.delete(room_id)
     if deleted:
         return Response(status_code=HTTPStatus.OK)
@@ -49,24 +46,21 @@ async def delete_room(room_id: int):
 
 
 # Seat routers
-seatPersistence = SeatSqlModelPersistence()
-# seatPersistence = RoomRabbitMQPersistence()
-seatService = SeatService(seatPersistence)
 
 @router.get("/{room_id}/seat", tags=["seat"], response_model=list[SeatSchema])
-async def get_all_seats(room_id: int):
+async def get_all_seats(room_id: int, seatService: ISeatService = Depends(get_seat_service)):
     seats = seatService.getAll(room_id=room_id)
     return seats
 
 @router.get("/{room_id}/seat/{seat_id}", tags=["seat"], response_model=SeatSchema)
-async def get_seat(room_id: int, seat_id: int):
+async def get_seat(room_id: int, seat_id: int, seatService: ISeatService = Depends(get_seat_service)):
     seat = seatService.get(seat_id=seat_id, room_id=room_id)
     if seat:
         return seat
     raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Seat not found")
 
 @router.post("/{room_id}/seat", tags=["seat"])
-async def create_seat(seat: SeatSchema):
+async def create_seat(seat: SeatSchema, seatService: ISeatService = Depends(get_seat_service)):
     if not seat.room_id:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="No room id")
     if not seat.horizontal:
@@ -80,21 +74,21 @@ async def create_seat(seat: SeatSchema):
     raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Error creating seat")
 
 @router.patch("/{room_id}/seat/{seat_id}", tags=["seat"])
-async def update_seat(seat_id: int, seat: SeatSchema):
+async def update_seat(seat_id: int, seat: SeatSchema, seatService: ISeatService = Depends(get_seat_service)):
     updated = seatService.update(seat_id, seat.horizontal, seat.vertical, seat.room_id)
     if updated:
         return Response(status_code=HTTPStatus.OK)
     raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Error updating seat")
 
 @router.delete("/{room_id}/seat/{seat_id}", tags=["seat"])
-async def delete_seat(seat_id: int):
+async def delete_seat(seat_id: int, seatService: ISeatService = Depends(get_seat_service)):
     deleted = seatService.delete(seat_id)
     if deleted:
         return Response(status_code=HTTPStatus.OK)
     raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Error deleting seat")
 
 @router.post("/{room_id}/seat/{seat_id}", tags=["seat"])
-async def set_seat_occupied(seat_id: int, room_id: int):
+async def set_seat_occupied(seat_id: int, room_id: int, seatService: ISeatService = Depends(get_seat_service)):
     successfully_occupied = seatService.set_unavaiable(seat_id=seat_id, room_id=room_id)
     if successfully_occupied:
         return Response(status_code=HTTPStatus.OK)

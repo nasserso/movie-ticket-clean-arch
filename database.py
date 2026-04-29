@@ -1,11 +1,11 @@
-from sqlmodel import SQLModel, create_engine
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 
-# TODO: usar postgres
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
+from settings import Settings
 
-engine = create_engine(sqlite_url)
 
-def create_db_and_tables():
-    # TODO: usar migrations
-    SQLModel.metadata.create_all(engine)
+engine = create_engine(Settings().DATABASE_URL)
+
+def get_session():
+    with Session(engine) as session:
+        yield session

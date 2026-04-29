@@ -1,12 +1,15 @@
 from typing import List
+
+from fastapi import Depends
 from apps.room.entities.room import Room
 from apps.room.entities.seat import Seat
 from apps.room.interfaces.interfaces import IRoomPersistence, IRoomService, ISeatPersistence, ISeatService
+from apps.room.persistence.persistence import RoomSqlModelPersistence, get_room_persistence, get_seat_persistence
 
 class RoomService(IRoomService):
     persistence: IRoomPersistence
 
-    def __init__(self, persistence: IRoomPersistence):
+    def __init__(self, persistence = Depends(RoomSqlModelPersistence)):
         self.persistence = persistence
 
     def getAll(self) -> List[Room]:
@@ -102,4 +105,9 @@ class SeatService(ISeatService):
         except Exception as e:
             print(e)
             return False
-    
+
+def get_room_service(persistence: IRoomService = Depends(get_room_persistence)):
+    return RoomService(persistence)
+
+def get_seat_service(persistence: ISeatService = Depends(get_seat_persistence)):
+    return SeatService(persistence)
