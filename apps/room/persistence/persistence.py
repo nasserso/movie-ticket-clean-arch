@@ -1,6 +1,6 @@
 from fastapi import Depends
+from sqlalchemy import select
 from apps.room.interfaces.interfaces import IRoomPersistence, ISeatPersistence
-from sqlmodel import select
 from sqlalchemy.orm import Session
 from apps.room.models.room import Room as RoomModel
 from apps.room.models.room import Seat as SeatModel
