@@ -9,3 +9,7 @@ class RoomSchema(BaseModel):
     name: str
     movie: str
 
+class SeatSchema(BaseModel):
+    horizontal: str
+    vertical: str
+    room_id: int
