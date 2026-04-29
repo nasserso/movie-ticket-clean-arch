@@ -1,14 +1,29 @@
-from sqlmodel import Field, SQLModel
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
+
+table_registry = registry()
 
 
-class Room(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    name: str = Field(index=True)
-    movie: str = Field(index=True)
+@table_registry.mapped_as_dataclass
+class Room:
+    __tablename__ = "rooms"
 
-class Seat(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    horizontal: str = Field(index=True)
-    vertical: str = Field(index=True)
-    is_available: bool = Field(index=True, default=True)
-    room_id: int | None = Field(default=None, foreign_key="room.id")
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    name: Mapped[str]
+    movie: Mapped[str]
+    seats: Mapped[list[Seat]] = relationship(
+        init=False,
+        cascade="all, delete-orphan",
+        lazy='selectin',
+    )
+
+@table_registry.mapped_as_dataclass
+class Seat:
+    __tablename__ = "seats"
+
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    horizontal: Mapped[str]
+    vertical: Mapped[str]
+    room_id: Mapped[int] = mapped_column(ForeignKey("rooms.id"))
+    is_available: bool = mapped_column(default=True)
+
