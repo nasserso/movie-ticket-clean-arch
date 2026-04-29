@@ -15,7 +15,9 @@ roomService = RoomService(roomPersistence)
 @router.get("", tags=["room"], response_model=list[RoomResponseSchema])
 async def get_all_rooms():
     rooms = roomService.getAll()
-    return rooms
+    if not rooms is None:
+        return rooms
+    raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Error getting rooms")
 
 @router.get("/{room_id}", tags=["room"], response_model=RoomResponseSchema)
 async def get_room(room_id: int):

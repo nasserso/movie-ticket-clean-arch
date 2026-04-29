@@ -10,28 +10,43 @@ class RoomService(IRoomService):
         self.persistence = persistence
 
     def getAll(self) -> List[Room]:
-        roomList = self.persistence.getAll()
-        # TODO: map to room obj
-        return list(map(lambda r: { "id": r.id, "name": r.name, "movie": r.movie }, roomList))
+        try:
+            roomList = self.persistence.getAll()
+            return roomList
+        except Exception as e:
+            print(e)
 
     def get(self, id: str) -> Room | bool:
-        room = self.persistence.get(id)
-        # TODO: map to room obj
-        if room:
-            return { "id": room.id, "name": room.name, "movie": room.movie }
+        try:
+            room = self.persistence.get(id)
+            return room
+        except Exception as e:
+            print(e)
 
     def create(self, name: str, movie: str) -> bool:
-        room = Room(name=name, movie=movie, room_id="")
-        self.persistence.create(room.get_name(), room.get_movie())
-        return True
+        try:
+            room = Room(name=name, movie=movie, room_id="")
+            self.persistence.create(room.get_name(), room.get_movie())
+            return True
+        except Exception as e:
+            print(e)
+            return False
 
     def update(self, id: str, name: str, movie: str) -> bool:
-        self.persistence.update(id, name, movie)
-        return True
+        try:
+            self.persistence.update(id, name, movie)
+            return True
+        except Exception as e:
+            print(e)
+            return False
 
     def delete(self, id: str) -> bool:
-        self.persistence.delete(id)
-        return True
+        try:
+            self.persistence.delete(id)
+            return True
+        except Exception as e:
+            print(e)
+            return False
 
 class SeatService(ISeatService):
     persistence: ISeatPersistence
@@ -40,41 +55,51 @@ class SeatService(ISeatService):
         self.persistence = persistence
 
     def getAll(self, room_id: int) -> List[Seat]:
-        seatList = self.persistence.getAll(room_id)
-        # TODO: map to seat obj
-        return list(map(lambda s: { 
-            "seat_id": s.id,
-            "horizontal": s.horizontal,
-            "vertical": s.vertical,
-            "is_available": s.is_available,
-            "room_id": s.room_id,
-        }, seatList))
+        try:
+            seatList = self.persistence.getAll(room_id)
+            return seatList
+        except Exception as e:
+            print(e)
+
 
     def get(self, seat_id: int, room_id: int) -> Seat | bool:
-        seat = self.persistence.get(seat_id, room_id)
-        # TODO: map to seat obj
-        if seat:
-            return {
-            "seat_id": seat.id,
-            "horizontal": seat.horizontal,
-            "vertical": seat.vertical,
-            "is_available": seat.is_available,
-            "room_id": seat.room_id,
-        }
+        try:
+            seat = self.persistence.get(seat_id, room_id)
+            if seat:
+                return seat
+        except Exception as e:
+            print(e)
 
     def create(self, horizontal: str, vertical: str, room_id: int) -> bool:
-        seat = Seat(horizontal=horizontal, vertical=vertical, seat_id="", room_id=room_id)
-        self.persistence.create(seat.get_horizontal(), seat.get_vertical(), seat.get_room_id())
-        return True
+        try:
+            seat = Seat(horizontal=horizontal, vertical=vertical, seat_id="", room_id=room_id)
+            self.persistence.create(seat.get_horizontal(), seat.get_vertical(), seat.get_room_id())
+            return True
+        except Exception as e:
+            print(e)
+            return False
 
     def update(self, seat_id: int, horizontal: str, vertical: str, room_id: int) -> bool:
-        self.persistence.update(seat_id, horizontal, vertical, room_id)
-        return True
+        try:
+            self.persistence.update(seat_id, horizontal, vertical, room_id)
+            return True
+        except Exception as e:
+            print(e)
+            return False
 
     def delete(self, seat_id: int) -> bool:
-        self.persistence.delete(seat_id)
-        return True
+        try:
+            self.persistence.delete(seat_id)
+            return True
+        except Exception as e:
+            print(e)
+            return False
     
     def set_unavaiable(self, seat_id: int, room_id: int):
-        successfully_occupied = self.persistence.set_unavaiable(seat_id=seat_id, room_id=room_id)
-        return successfully_occupied
+        try:
+            successfully_occupied = self.persistence.set_unavaiable(seat_id=seat_id, room_id=room_id)
+            return successfully_occupied
+        except Exception as e:
+            print(e)
+            return False
+    
