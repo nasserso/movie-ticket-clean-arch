@@ -17,7 +17,7 @@ async def get_all_rooms():
     rooms = roomService.getAll()
     if not rooms is None:
         return rooms
-    raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Error getting rooms")
+    raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Error getting rooms")
 
 @router.get("/{room_id}", tags=["room"], response_model=RoomResponseSchema)
 async def get_room(room_id: int):
@@ -68,11 +68,11 @@ async def get_seat(room_id: int, seat_id: int):
 @router.post("/{room_id}/seat", tags=["seat"])
 async def create_seat(seat: SeatSchema):
     if not seat.room_id:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="No room id")
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="No room id")
     if not seat.horizontal:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="No horizontal seat position")
+        raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail="No horizontal seat position")
     if not seat.vertical:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="No vertical seat position")
+        raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail="No vertical seat position")
 
     created = seatService.create(seat.horizontal, seat.vertical, seat.room_id)
     if created:
