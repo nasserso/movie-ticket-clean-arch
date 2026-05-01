@@ -1,4 +1,6 @@
-from sqlalchemy import ForeignKey
+from datetime import datetime
+
+from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
 
 table_registry = registry()
@@ -27,3 +29,14 @@ class Seat:
     room_id: Mapped[int] = mapped_column(ForeignKey("rooms.id"))
     is_available: bool = mapped_column(default=True)
 
+@table_registry.mapped_as_dataclass
+class User:
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    email: Mapped[str] = mapped_column(unique=True)
+    username: Mapped[str] = mapped_column(unique=True)
+    password: Mapped[str]
+    created_at: Mapped[datetime] = mapped_column(
+        init=False, server_default=func.now()
+    )
