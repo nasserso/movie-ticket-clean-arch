@@ -13,8 +13,13 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "pytest>=9.0.3",
     "ruff>=0.15.12",
 ]
+
+[tool.pytest.init_options]
+pythonpath = "."
+addopts = '-p no:warnings'
 
 [tool.ruff]
 line-length = 79
