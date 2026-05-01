@@ -100,8 +100,8 @@ class SeatService(ISeatService):
     
     def set_unavaiable(self, seat_id: int, room_id: int):
         try:
-            successfully_occupied = self.persistence.set_unavaiable(seat_id=seat_id, room_id=room_id)
-            return successfully_occupied
+            successfully_reserved = self.persistence.set_unavaiable(seat_id=seat_id, room_id=room_id)
+            return successfully_reserved
         except Exception as e:
             print(e)
             return False

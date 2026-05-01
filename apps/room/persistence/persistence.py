@@ -118,12 +118,16 @@ class SeatSqlModelPersistence(ISeatPersistence):
             )
         )
 
-        if seat.is_available == False:
+        if not seat or seat.is_available == False:
             return False
-        else:
+
+        try:
             seat.is_available = False
             self.session.add(seat)
             self.session.commit()
+        except Exception:
+            self.session.rollback()
+            raise
         return True
 
 

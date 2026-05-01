@@ -3,7 +3,7 @@ from http import HTTPStatus
 from fastapi import APIRouter, Depends, HTTPException, Response
 
 from apps.room.interfaces.interfaces import IRoomService, ISeatService
-from apps.room.routers.schemas import RoomResponseSchema, RoomSchema, SeatSchema
+from apps.room.routers.schemas import RoomResponseSchema, RoomSchema, SeatResponseSchema, SeatSchema
 from apps.room.services.service import get_room_service, get_seat_service
 
 
@@ -47,12 +47,12 @@ async def delete_room(room_id: int, roomService: IRoomService = Depends(get_room
 
 # Seat routers
 
-@router.get("/{room_id}/seat", tags=["seat"], response_model=list[SeatSchema])
+@router.get("/{room_id}/seat", tags=["seat"], response_model=list[SeatResponseSchema])
 async def get_all_seats(room_id: int, seatService: ISeatService = Depends(get_seat_service)):
     seats = seatService.getAll(room_id=room_id)
     return seats
 
-@router.get("/{room_id}/seat/{seat_id}", tags=["seat"], response_model=SeatSchema)
+@router.get("/{room_id}/seat/{seat_id}", tags=["seat"], response_model=SeatResponseSchema)
 async def get_seat(room_id: int, seat_id: int, seatService: ISeatService = Depends(get_seat_service)):
     seat = seatService.get(seat_id=seat_id, room_id=room_id)
     if seat:
@@ -87,9 +87,9 @@ async def delete_seat(seat_id: int, seatService: ISeatService = Depends(get_seat
         return Response(status_code=HTTPStatus.OK)
     raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Error deleting seat")
 
-@router.post("/{room_id}/seat/{seat_id}", tags=["seat"])
-async def set_seat_occupied(seat_id: int, room_id: int, seatService: ISeatService = Depends(get_seat_service)):
-    successfully_occupied = seatService.set_unavaiable(seat_id=seat_id, room_id=room_id)
-    if successfully_occupied:
+@router.put("/{room_id}/seat/{seat_id}/reserve", tags=["seat"])
+async def set_seat_reserved(seat_id: int, room_id: int, seatService: ISeatService = Depends(get_seat_service)):
+    successfully_reserved = seatService.set_unavaiable(seat_id=seat_id, room_id=room_id)
+    if successfully_reserved:
         return Response(status_code=HTTPStatus.OK)
-    raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Error occupying seat")
+    raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Error reserving seat")
