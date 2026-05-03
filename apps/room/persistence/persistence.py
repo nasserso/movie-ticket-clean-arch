@@ -113,20 +113,16 @@ class SeatSqlModelPersistence(ISeatPersistence):
 
     def set_unavaiable(self, seat_id: int, room_id: int):
         try:
-            stmt = (
-                update(SeatModel)
+            seat = self.session.scalar(
+                select(SeatModel)
                 .where(
                     (SeatModel.room_id==room_id) & (SeatModel.id == seat_id)
                 )
-                .values(is_available=False)
-                .returning(SeatModel.is_available)
+                .with_for_update()
             )
-            result = self.session.execute(stmt)
-            row = result.first()
 
-            if row is None:
-                return False
-
+            seat.is_available = False
+            self.session.add(seat)
             self.session.commit()
         except Exception:
             self.session.rollback()
