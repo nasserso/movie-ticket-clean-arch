@@ -4,12 +4,14 @@ class Seat:
     vertical: str
     is_available: bool = True
     room_id: str
+    user_id: str
 
-    def __init__(self, seat_id: str, horizontal: str, vertical: str, room_id: str):
+    def __init__(self, seat_id: str, horizontal: str, vertical: str, room_id: str, user_id: str):
         self.seat_id = seat_id
         self.horizontal = horizontal
         self.vertical = vertical
         self.room_id = room_id
+        self.user_id = user_id
 
     def change_to_available(self) -> None:
         self.is_available = True
@@ -22,6 +24,9 @@ class Seat:
     
     def get_room_id(self) -> str:
         return self.room_id
+    
+    def get_user_id(self) -> str:
+        return self.user_id
 
     def get_horizontal(self) -> str:
         return self.horizontal
@@ -43,3 +48,7 @@ class Seat:
 
     def set_room_id(self, room_id) -> None:
         self.room_id = room_id
+    
+    def set_user_id(self, user_id) -> None:
+        self.user_id = user_id
+    

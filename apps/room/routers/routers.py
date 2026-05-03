@@ -68,7 +68,7 @@ async def create_seat(seat: SeatSchema, seatService: ISeatService = Depends(get_
     if not seat.vertical:
         raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail="No vertical seat position")
 
-    created = seatService.create(seat.horizontal, seat.vertical, seat.room_id)
+    created = seatService.create(seat.horizontal, seat.vertical, seat.room_id, seat.user_id)
     if created:
         return Response(status_code=HTTPStatus.CREATED)
     raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Error creating seat")

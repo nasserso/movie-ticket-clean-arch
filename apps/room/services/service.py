@@ -73,10 +73,21 @@ class SeatService(ISeatService):
         except Exception as e:
             print(e)
 
-    def create(self, horizontal: str, vertical: str, room_id: int) -> bool:
+    def create(self, horizontal: str, vertical: str, room_id: int, user_id: int) -> bool:
         try:
-            seat = Seat(horizontal=horizontal, vertical=vertical, seat_id="", room_id=room_id)
-            self.persistence.create(seat.get_horizontal(), seat.get_vertical(), seat.get_room_id())
+            seat = Seat(
+                horizontal=horizontal,
+                vertical=vertical,
+                seat_id="",
+                room_id=room_id,
+                user_id=user_id,
+            )
+            self.persistence.create(
+                seat.get_horizontal(),
+                seat.get_vertical(),
+                seat.get_room_id(),
+                seat.get_user_id(),
+            )
             return True
         except Exception as e:
             print(e)

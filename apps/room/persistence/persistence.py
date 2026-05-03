@@ -83,8 +83,8 @@ class SeatSqlModelPersistence(ISeatPersistence):
         )
         return seat
 
-    def create(self, horizontal: str, vertical: str, room_id: int):
-        seat = SeatModel(horizontal=horizontal, vertical=vertical, room_id=room_id)
+    def create(self, horizontal: str, vertical: str, room_id: int, user_id: int):
+        seat = SeatModel(horizontal=horizontal, vertical=vertical, room_id=room_id, user_id=user_id)
         self.session.add(seat)
         self.session.commit()
 
