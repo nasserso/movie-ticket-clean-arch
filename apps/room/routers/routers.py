@@ -87,6 +87,7 @@ async def delete_seat(seat_id: int, seatService: ISeatService = Depends(get_seat
         return Response(status_code=HTTPStatus.OK)
     raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Error deleting seat")
 
+# TODO: logged user only should sent put request
 @router.put("/{room_id}/seat/{seat_id}/reserve", tags=["seat"])
 async def set_seat_reserved(seat_id: int, room_id: int, seatService: ISeatService = Depends(get_seat_service)):
     successfully_reserved = seatService.set_reserved(seat_id=seat_id, room_id=room_id)
