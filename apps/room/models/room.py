@@ -5,13 +5,15 @@ from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
 
 table_registry = registry()
 
-
 convention = {
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
     "uq": "uq_%(table_name)s_%(column_0_name)s",
     "ck": "ck_%(table_name)s_%(constraint_name)s",
     "pk": "pk_%(table_name)s",
 }
+
+table_registry.metadata.naming_convention = convention
+
 
 @table_registry.mapped_as_dataclass
 class Room:
@@ -26,6 +28,8 @@ class Room:
         lazy='selectin',
     )
 
+
+# TODO: constraint: dont create same seat twice (horizontal, vertical, room_id)
 @table_registry.mapped_as_dataclass
 class Seat:
     __tablename__ = "seats"
@@ -35,10 +39,9 @@ class Seat:
     vertical: Mapped[str]
     room_id: Mapped[int] = mapped_column(ForeignKey("rooms.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    user: Mapped[User] = relationship(back_populates="seat", single_parent=True)
+    user: Mapped[User] = relationship(init=False, back_populates="seat", single_parent=True)
     is_available: bool = mapped_column(default=True)
 
-    metadata = MetaData(naming_convention=convention)
 
 @table_registry.mapped_as_dataclass
 class User:
