@@ -16,7 +16,7 @@ class Seat:
     def change_to_available(self) -> None:
         self.is_available = True
 
-    def change_to_unavailable(self) -> None:
+    def change_to_reserved(self) -> None:
         self.is_available = False
 
     def get_seat_id(self) -> str:

@@ -17,7 +17,7 @@ class TestRoom:
         room.set_room_id("room_id1")
         room.set_horizontal("horizontal1")
         room.set_vertical("vertical1")
-        room.change_to_unavailable()
+        room.change_to_reserved()
 
         assert room.get_seat_id() == "seat_id1"
         assert room.get_room_id() == "room_id1"

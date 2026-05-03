@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from apps.room.models.room import Room, Seat  
 
-def test_set_unavailable(client, session: Session):
+def test_set_reserved(client, session: Session):
     room = Room(
         name="test_room",
         movie="test_movie",

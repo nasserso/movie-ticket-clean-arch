@@ -4,7 +4,7 @@ from apps.room.models.room import Room, Seat
 from apps.room.persistence.persistence import SeatSqlModelPersistence  
 
 
-def test_set_unavailable_idempotent(client, session: Session):
+def test_set_reserved_idempotent(client, session: Session):
     room = Room(
         name="test_room",
         movie="test_movie",
@@ -22,11 +22,11 @@ def test_set_unavailable_idempotent(client, session: Session):
     session.commit()
     session.refresh(seat)
 
-    result_ok = SeatSqlModelPersistence(session=session).set_unavaiable(
+    result_ok = SeatSqlModelPersistence(session=session).set_reserved(
         seat_id=seat.id,
         room_id=room.id
     )
-    result_error = SeatSqlModelPersistence(session=session).set_unavaiable(
+    result_error = SeatSqlModelPersistence(session=session).set_reserved(
         seat_id=seat.id,
         room_id=room.id
     )

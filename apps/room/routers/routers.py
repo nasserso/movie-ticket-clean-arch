@@ -89,7 +89,7 @@ async def delete_seat(seat_id: int, seatService: ISeatService = Depends(get_seat
 
 @router.put("/{room_id}/seat/{seat_id}/reserve", tags=["seat"])
 async def set_seat_reserved(seat_id: int, room_id: int, seatService: ISeatService = Depends(get_seat_service)):
-    successfully_reserved = seatService.set_unavaiable(seat_id=seat_id, room_id=room_id)
+    successfully_reserved = seatService.set_reserved(seat_id=seat_id, room_id=room_id)
     if successfully_reserved:
         return Response(status_code=HTTPStatus.OK)
     raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Error reserving seat")

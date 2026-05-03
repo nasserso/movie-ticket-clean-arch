@@ -111,7 +111,7 @@ class SeatSqlModelPersistence(ISeatPersistence):
             self.session.delete(seat)
             self.session.commit()
 
-    def set_unavaiable(self, seat_id: int, room_id: int):
+    def set_reserved(self, seat_id: int, room_id: int):
         try:
             seat = self.session.scalar(
                 select(SeatModel)
@@ -139,7 +139,7 @@ class SeatSqlModelPersistence(ISeatPersistence):
 #             print(seat_data)
 #             if "seat_id" in seat_data and "room_id" in seat_data:
 #                 persistence = SeatSqlModelPersistence()
-#                 persistence.set_unavaiable(
+#                 persistence.set_reserved(
 #                     seat_id=seat_data["seat_id"],
 #                     room_id=seat_data["room_id"],
 #                 )
@@ -151,7 +151,7 @@ class SeatSqlModelPersistence(ISeatPersistence):
 #         )
 #         thread.start()
 
-#     def set_unavaiable(self, seat_id: int, room_id: int):
+#     def set_reserved(self, seat_id: int, room_id: int):
 #         self.messenger.produce(
 #             json.dumps({
 #                 "seat_id": seat_id,
