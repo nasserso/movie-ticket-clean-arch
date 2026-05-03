@@ -1,5 +1,5 @@
 from fastapi import Depends
-from sqlalchemy import select
+from sqlalchemy import select, update
 from apps.room.interfaces.interfaces import IRoomPersistence, ISeatPersistence
 from sqlalchemy.orm import Session
 from apps.room.models.room import Room as RoomModel
@@ -112,18 +112,21 @@ class SeatSqlModelPersistence(ISeatPersistence):
             self.session.commit()
 
     def set_unavaiable(self, seat_id: int, room_id: int):
-        seat = self.session.scalar(
-            select(SeatModel).where(
-                (SeatModel.room_id==room_id) & (SeatModel.id == seat_id)
-            )
-        )
-
-        if not seat or seat.is_available == False:
-            return False
-
         try:
-            seat.is_available = False
-            self.session.add(seat)
+            stmt = (
+                update(SeatModel)
+                .where(
+                    (SeatModel.room_id==room_id) & (SeatModel.id == seat_id)
+                )
+                .values(is_available=False)
+                .returning(SeatModel.is_available)
+            )
+            result = self.session.execute(stmt)
+            row = result.first()
+
+            if row is None:
+                return False
+
             self.session.commit()
         except Exception:
             self.session.rollback()
