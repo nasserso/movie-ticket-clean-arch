@@ -16,6 +16,7 @@ class SeatSchema(BaseModel):
     user_id: int
 
 class SeatResponseSchema(SeatSchema):
+    id: int
     horizontal: str
     vertical: str
     room_id: int
