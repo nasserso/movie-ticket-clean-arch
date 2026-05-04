@@ -1,36 +1,40 @@
 import pytest
+import pytest_asyncio
 from fastapi.testclient import TestClient
-from sqlalchemy import StaticPool, create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy import StaticPool
 
 from database import get_session
 from main import app
 from apps.room.models.room import table_registry
 
+from sqlalchemy.ext.asyncio import (
+    create_async_engine, AsyncSession
+)
+    
 @pytest.fixture
-def client(session):
+def client(session: AsyncSession):
     def get_session_override():
         return session
-        
+
     with TestClient(app) as client:
         app.dependency_overrides[get_session] = get_session_override
         yield client
 
     app.dependency_overrides.clear()
 
-@pytest.fixture
-def session():
-    engine = create_engine(
-        'sqlite:///:memory:',
+@pytest_asyncio.fixture
+async def session():
+    engine = create_async_engine(
+        'sqlite+aiosqlite:///:memory:',
         connect_args={'check_same_thread': False},
         poolclass=StaticPool,
     )
 
-    table_registry.metadata.create_all(engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(table_registry.metadata.create_all)
 
-    with Session(engine) as session:
+    async with AsyncSession(engine, expire_on_commit=False) as session:
         yield session
-        
-    table_registry.metadata.drop_all(engine)
-        
-    engine.dispose()
+
+    async with engine.begin() as conn:
+        await conn.run_sync(table_registry.metadata.drop_all)

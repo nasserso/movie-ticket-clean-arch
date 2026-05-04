@@ -1,26 +1,30 @@
 from http import HTTPStatus
-
-from sqlalchemy.orm import Session
+import pytest
+from sqlalchemy.ext.asyncio import (
+    AsyncSession
+)
 
 from apps.room.models.room import Room, Seat  
 
-def test_set_reserved(client, session: Session):
+@pytest.mark.asyncio
+async def test_set_reserved(client, session: AsyncSession):
     room = Room(
         name="test_room",
         movie="test_movie",
     )
     session.add(room)
-    session.commit()
-    session.refresh(room)
+    await session.commit()
+    await session.refresh(room)
 
     seat = Seat(
         horizontal="h",
         vertical="1",
         room_id=room.id,
+        user_id=1,
     )
     session.add(seat)
-    session.commit()
-    session.refresh(seat)
+    await session.commit()
+    await session.refresh(seat)
 
     response_ok = client.put(f'/room/{room.id}/seat/{seat.id}/reserve')
     assert response_ok.status_code == HTTPStatus.OK

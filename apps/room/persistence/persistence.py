@@ -111,15 +111,18 @@ class SeatSqlModelPersistence(ISeatPersistence):
             self.session.delete(seat)
             self.session.commit()
 
-    def set_reserved(self, seat_id: int, room_id: int):
+    async def set_reserved(self, seat_id: int, room_id: int):
         try:
-            seat = self.session.scalar(
+            seat = await self.session.scalar(
                 select(SeatModel)
                 .where(
                     (SeatModel.room_id==room_id) & (SeatModel.id == seat_id)
                 )
                 .with_for_update()
             )
+
+            if not seat or not seat.is_available:
+                return False
 
             seat.is_available = False
             self.session.add(seat)
