@@ -110,7 +110,7 @@ class SeatSqlModelPersistence(ISeatPersistence):
             select(SeatModel).where(SeatModel.id==seat_id)
         )
         if seat:
-            self.session.delete(seat)
+            await self.session.delete(seat)
             await self.session.commit()
 
     async def set_reserved(self, seat_id: int, room_id: int):

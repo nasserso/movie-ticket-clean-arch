@@ -101,9 +101,9 @@ class SeatService(ISeatService):
             print(e)
             return False
 
-    def delete(self, seat_id: int) -> bool:
+    async def delete(self, seat_id: int) -> bool:
         try:
-            self.persistence.delete(seat_id)
+            await self.persistence.delete(seat_id)
             return True
         except Exception as e:
             print(e)
