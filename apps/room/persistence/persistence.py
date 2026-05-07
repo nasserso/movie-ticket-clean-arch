@@ -1,25 +1,27 @@
 from fastapi import Depends
-from sqlalchemy import select, update
+from sqlalchemy import select
 from apps.room.interfaces.interfaces import IRoomPersistence, ISeatPersistence
-from sqlalchemy.orm import Session
 from apps.room.models.room import Room as RoomModel
 from apps.room.models.room import Seat as SeatModel
+from sqlalchemy.ext.asyncio import (
+    AsyncSession
+)
 
 from database import get_session
 # from rabbitmq import PikaMessenger
 
-def get_room_persistence(session: Session = Depends(get_session)):
+def get_room_persistence(session: AsyncSession = Depends(get_session)):
     return RoomSqlModelPersistence(session)
 
-def get_seat_persistence(session: Session = Depends(get_session)):
+def get_seat_persistence(session: AsyncSession = Depends(get_session)):
     return SeatSqlModelPersistence(session)
 
 class RoomSqlModelPersistence(IRoomPersistence):
-    def __init__(self, session: Session):
+    def __init__(self, session: AsyncSession):
         self.session = session
 
-    def getAll(self):
-        rooms = self.session.scalars(
+    async def getAll(self):
+        rooms = await self.session.scalars(
             select(RoomModel)
         )
 
@@ -28,23 +30,23 @@ class RoomSqlModelPersistence(IRoomPersistence):
         return rooms
 
 
-    def get(self, id: str):
-        room = self.session.scalar(
+    async def get(self, id: str):
+        room = await self.session.scalar(
             select(RoomModel).where(RoomModel.id==id)
         )
         return room
 
-    def create(self, name: str, movie: str):
+    async def create(self, name: str, movie: str):
         room = RoomModel(
             name=name,
             movie=movie,
         )
 
         self.session.add(room)
-        self.session.commit()
+        await self.session.commit()
 
-    def update(self, id: str, name: str, movie: str):
-        room = self.session.scalar(
+    async def update(self, id: str, name: str, movie: str):
+        room = await self.session.scalar(
             select(RoomModel).where(RoomModel.id==id)
         )
         if room:
@@ -53,23 +55,23 @@ class RoomSqlModelPersistence(IRoomPersistence):
             if movie:
                 room.movie = movie
             self.session.add(room)
-            self.session.commit()
+            await self.session.commit()
 
 
-    def delete(self, id: str):
-        room = self.session.scalar(
+    async def delete(self, id: str):
+        room = await self.session.scalar(
             select(RoomModel).where(RoomModel.id==id)
         )
         if room:
             self.session.delete(room)
-            self.session.commit()
+            await self.session.commit()
 
 class SeatSqlModelPersistence(ISeatPersistence):
-    def __init__(self, session: Session):
+    def __init__(self, session: AsyncSession):
         self.session = session
 
-    def getAll(self, room_id: int):
-        seats = self.session.scalars(
+    async def getAll(self, room_id: int):
+        seats = await self.session.scalars(
             select(SeatModel).where(SeatModel.room_id==room_id)
         )
 
@@ -77,19 +79,19 @@ class SeatSqlModelPersistence(ISeatPersistence):
             return []
         return seats
 
-    def get(self, seat_id: int, room_id: int):
-        seat = self.session.scalar(
+    async def get(self, seat_id: int, room_id: int):
+        seat = await self.session.scalar(
             select(SeatModel).where((SeatModel.room_id==room_id) & (SeatModel.id == seat_id))
         )
         return seat
 
-    def create(self, horizontal: str, vertical: str, room_id: int, user_id: int):
+    async def create(self, horizontal: str, vertical: str, room_id: int, user_id: int):
         seat = SeatModel(horizontal=horizontal, vertical=vertical, room_id=room_id, user_id=user_id)
         self.session.add(seat)
-        self.session.commit()
+        await self.session.commit()
 
-    def update(self, seat_id: int, horizontal: str, vertical: str, room_id: int):
-        seat = self.session.scalar(
+    async def update(self, seat_id: int, horizontal: str, vertical: str, room_id: int):
+        seat = await self.session.scalar(
             select(SeatModel).where(SeatModel.id == seat_id)
         )
 
@@ -101,15 +103,15 @@ class SeatSqlModelPersistence(ISeatPersistence):
             seat.room_id = room_id
 
         self.session.add(seat)
-        self.session.commit()
+        await self.session.commit()
 
-    def delete(self, seat_id: int):
-        seat = self.session.scalar(
+    async def delete(self, seat_id: int):
+        seat = await self.session.scalar(
             select(SeatModel).where(SeatModel.id==seat_id)
         )
         if seat:
             self.session.delete(seat)
-            self.session.commit()
+            await self.session.commit()
 
     async def set_reserved(self, seat_id: int, room_id: int):
         try:
@@ -126,7 +128,7 @@ class SeatSqlModelPersistence(ISeatPersistence):
 
             seat.is_available = False
             self.session.add(seat)
-            self.session.commit()
+            await self.session.commit()
         except Exception:
             self.session.rollback()
             raise

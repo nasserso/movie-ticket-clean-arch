@@ -73,7 +73,7 @@ class SeatService(ISeatService):
         except Exception as e:
             print(e)
 
-    def create(self, horizontal: str, vertical: str, room_id: int, user_id: int) -> bool:
+    async def create(self, horizontal: str, vertical: str, room_id: int, user_id: int) -> bool:
         try:
             seat = Seat(
                 horizontal=horizontal,
@@ -82,7 +82,7 @@ class SeatService(ISeatService):
                 room_id=room_id,
                 user_id=user_id,
             )
-            self.persistence.create(
+            await self.persistence.create(
                 seat.get_horizontal(),
                 seat.get_vertical(),
                 seat.get_room_id(),
