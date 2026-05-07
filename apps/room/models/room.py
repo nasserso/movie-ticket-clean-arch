@@ -1,6 +1,8 @@
+# from __future__ import annotations
+
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, MetaData, func
+from sqlalchemy import ForeignKey, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
 
 table_registry = registry()
@@ -39,8 +41,12 @@ class Seat:
     vertical: Mapped[str]
     room_id: Mapped[int] = mapped_column(ForeignKey("rooms.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    user: Mapped[User] = relationship(init=False, back_populates="seat", single_parent=True)
+    user: Mapped["User"] = relationship(init=False, back_populates="seat", single_parent=True)
     is_available: bool = mapped_column(default=True)
+
+    __table_args__ = (
+        UniqueConstraint("horizontal", "vertical", "room_id", name="uq_seat_position"),
+    )
 
 
 @table_registry.mapped_as_dataclass
@@ -54,4 +60,4 @@ class User:
     created_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now()
     )
-    seat: Mapped[Seat] = relationship()
+    seat: Mapped["Seat"] = relationship(back_populates="user")
