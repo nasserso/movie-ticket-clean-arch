@@ -31,7 +31,6 @@ class Room:
     )
 
 
-# TODO: constraint: dont create same seat twice (horizontal, vertical, room_id)
 @table_registry.mapped_as_dataclass
 class Seat:
     __tablename__ = "seats"
